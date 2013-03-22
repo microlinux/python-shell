@@ -29,7 +29,7 @@ to execute and and an optional individual command timeout in seconds. Default
 timeout is 30 seconds. If you get 'OSError: [Errno 13] Permission denied', see 
 http://goo.gl/jHej7.
 
-results = shell.command(['ping -c5 -i1 google.com', 'whoami'], 5)
+results = shell.command(['ping -c5 -i1 google.com', 'whoami'], 7)
 
 results will be a list of namedtuples ordered to match the list of commands.
 
