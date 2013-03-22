@@ -52,11 +52,10 @@ def format_output(output):
 @param  <str>           command to execute
 @param  <int>           timeout in seconds (default: 30)
 @param  Process.Queue   optional queue to place result in
-@param  <int>           required only if queue is given, index in list of
+@param  <int>           required only if a queue is given, index in list of
                         commands given to multi_command
 
-@return NamedTuple|None namedtuple of result or None, depending if queue was
-                        given
+@return NamedTuple|None result or None, depending if a queue was given
 """
 def command(command, timeout=30, queue=None, index=None):
   tokens = split(command)
