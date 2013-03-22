@@ -6,8 +6,8 @@ from threading import Timer
 from time import sleep
 
 """
-@desc	strips leading/trailing blank lines and horizontal whitespace from a list
-      of lines
+@desc	strip leading/trailing blank lines and horizontal whitespace from a list
+			of lines, helpful for mechanized processing
 
 @param	<list>	lines
 
@@ -41,8 +41,8 @@ def format_output(output):
 	return output
 
 """
-@desc	dual purpose command forker, if given a queue, places result into it as a 
-      list, else returns a namedtuple (see below, list follows same order)
+@desc	dual purpose command forker; if given a queue, place result into it as a 
+			list, else return a namedtuple (see below, list follows same order)
 			
 			command	<str>		command to execute
 			tokens	<list>	tokenized command
@@ -56,7 +56,7 @@ def format_output(output):
 												commands given to multi_command
 
 @return	NamedTuple|None namedtuple of result or None, depending if queue was 
-                        given
+												given
 """
 def command(command, timeout=30, queue=None, index=None):
 	tokens = split(command)
@@ -87,7 +87,7 @@ def command(command, timeout=30, queue=None, index=None):
 
 """
 @desc	forks mutilple shell commands concurrently and returns a list of results
-      as namedtuples in the same order as the commands were given
+			as namedtuples in the same order as the commands were given
 
 @param	<list>	commands to execute
 @param	<int>		individual command timeout in seconds (default: 30)
