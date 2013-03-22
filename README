@@ -26,7 +26,8 @@ shell.multi_command(commands, [timeout])
 -----------------------------------------
 Executes multiple commands concurrently. Takes two arguments, a list of commands
 to execute and and an optional individual command timeout in seconds. Default
-timeout is 30 seconds.
+timeout is 30 seconds. If you get 'OSError: [Errno 13] Permission denied', see 
+http://goo.gl/jHej7.
 
 results = shell.command(['ping -c5 -i1 google.com', 'whoami'], 5)
 
