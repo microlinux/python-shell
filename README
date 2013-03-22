@@ -1,7 +1,7 @@
 shell
 =====
 
-provides functions to execute a single shell command, or a group of shell
+Provides functions to execute a single shell command, or a group of shell
 commands concurrently
 
 ----------------------------------
@@ -30,8 +30,7 @@ timeout is 30 seconds.
 
 results = shell.command(['ping -c5 -i1 google.com', 'whoami'], 5)
 
-results will be a list of namedtuples, as in shell.command. Results are ordered
-to match the given list of commands.
+results will be a list of namedtuples ordered to match the list of commands.
 
 for result in results:
   print result.command
