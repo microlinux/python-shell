@@ -115,7 +115,7 @@ def multi_command(commands, timeout=30):
     result = queue.get()
     results[int(result[0])] = namedtuple("ResultTuple", ['command', 'tokens', 'retval', 'output'])._make([result[1][0], result[1][1], result[1][2],result[1][3]])
 
-  # signals main process that subprocesses are finished
+  # signal subprocesses complete
   for i in range(0, num_cmds):
     procs[i].join();
 
