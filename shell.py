@@ -47,8 +47,8 @@ Returns the command result as a list.
 
 """
 def worker(job):
-  retval = None
   output = []
+  retval = None
 
   try:
     """ Fork the command, time out after x seconds. """
@@ -102,9 +102,7 @@ def command(command, timeout=10):
   assert type(timeout) is int, 'timeout is not an integer'
 
   """ Run the command. """
-  result = worker([command, timeout])
-
-  return parse_result(result)
+  return parse_result(worker([command, timeout]))
 
 """ Executes multiple commands concurrently.
 
@@ -125,7 +123,6 @@ def multi_command(commands, timeout=10, workers=4):
   assert type(workers) is int, 'workers is not an integer'
 
   count = len(commands)
-  result_tuples = []
 
   """ No sense in having more workers than jobs. """
   if workers > count:
