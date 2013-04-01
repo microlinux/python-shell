@@ -62,7 +62,8 @@ def worker(job):
   except Exception, e:
     """ Special case, unexpected exception. """
     retval = 256
-    output = ['%s' % strip_output(e.split('\n'))]
+    output = '%s' % e
+    output = strip_output(output.split('\n'))
   finally:
     if retval != 255 and retval != 256:
       if proc.returncode == 124:
@@ -81,7 +82,8 @@ def worker(job):
         except Exception, e:
           """ Special case, unexpected exception. """
           retval = 257
-          output = ['%s' % strip_output(e.split('\n'))]
+          output = '%s' % e
+          output = strip_output(output.split('\n'))
           pass
 
     return [job[0], retval, output]
