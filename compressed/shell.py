@@ -14,8 +14,8 @@ def strip_output(output):
 def parse_result(result):
   return namedtuple("ResultTuple", ['command', 'retval', 'output'])._make([result[0], result[1], result[2]])
 def worker(job):
-  retval = None
   output = []
+  retval = None
   try:
     proc = Popen(split('/usr/bin/timeout %s %s' % (job[1], str(job[0]))), stdout=PIPE, stderr=STDOUT, close_fds=True)
     proc.wait()
@@ -56,7 +56,6 @@ def multi_command(commands, timeout=10, workers=4):
   assert type(timeout) is int, 'timeout is not an integer'
   assert type(workers) is int, 'workers is not an integer'
   count = len(commands)
-  result_tuples = []
   if workers > count:
     workers = count
   for i in range(count):
