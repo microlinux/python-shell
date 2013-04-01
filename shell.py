@@ -86,7 +86,7 @@ def worker(job):
 
     return [job[0], retval, output]
 
-""" Execute a single command.
+""" Executes a single command.
 
 Runs a command and returns the result as a namedtuple.
 
