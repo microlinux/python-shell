@@ -58,7 +58,7 @@ def worker(job):
   except OSError:
     """ Special case, /usr/bin/timeout not found. """
     retval = 255
-    output = ['/usr/bin/timeout not found']
+    output = ['/usr/bin/timeout not found or not executable']
   except Exception, e:
     """ Special case, unexpected exception. """
     retval = 256
