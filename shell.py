@@ -37,7 +37,7 @@ def parse_result(result):
   return namedtuple("ResultTuple", ['command', 'retval', 'output'])._make(
                     [result[0], result[1], result[2]])
 
-""" Multiprocessing Pool worker.
+""" Command worker function.
 
 Runs a command passed as a list of arguments. Requires /usr/bin/tmeout.
 Returns the command result as a list.
