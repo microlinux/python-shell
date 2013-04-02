@@ -7,8 +7,8 @@ from traceback import format_exc
 
 """ Strips whitespace from command output.
 
-Strips horizontal and vertical whitespace from command output and returns a
-corresponding list.
+Strips horizontal and vertical whitespace from command output and returns 
+the result as a list.
 
 @param  <list>  raw output
 @return <list>  stripped output
@@ -41,7 +41,7 @@ def parse_result(result):
 """ Command worker function.
 
 Runs a command passed as a list of arguments. Requires /usr/bin/timeout.
-Returns a list containing the command result.
+Returns the result as a list.
 
 @param  <list>  command string, timeout in seconds
 @return <list>  command string, retval, stripped output
@@ -87,9 +87,9 @@ def worker(job):
 
     return [job[0], retval, strip_output(output)]
 
-""" Executes a single command.
+""" Executes a command.
 
-Runs a command and returns the result as a namedtuple.
+Executes a command with a timeout. Returns the result as a namedtuple.
 
 @param  <str> command string
 @param  <int> timeout in seconds
@@ -102,10 +102,10 @@ def command(command, timeout=10):
 
   return parse_result(worker([command, timeout]))
 
-""" Executes multiple commands concurrently.
+""" Executes commands concurrently.
 
-Runs multiple commands concurrently in a pool of the given size. Returns a
-generator that returns ordered namedtuples of results.
+Executes commands concurrently with individual timeouts in a pool of
+workers. Returns ordered results as a namedtuple generator.
 
 @param  <list>  command strings
 @param  <int>   individual command timeout in seconds
@@ -133,11 +133,11 @@ def multi_command(commands, timeout=10, workers=4):
   for i in range(count):
     commands[i] = [commands[i], timeout]
 
-  """ Fire up the pool, collect ordered results. """
+  """ Fire up the pool, create a generator with ordered results. """
   pool = Pool(processes=workers)
   results = pool.imap(worker, commands)
 
-  """ Wait for all jobs to finish """
+  """ Wait for all jobs to finish. """
   pool.close()
   pool.join()
 
