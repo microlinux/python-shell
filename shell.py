@@ -9,7 +9,7 @@ from traceback import format_exc
 
 """ Strips whitespace from command output.
 
-Strips horizontal and vertical whitespace from command output. Returns the 
+Strips horizontal and vertical whitespace from command output. Returns the
 result as a list.
 
 @param  <list>  raw output
@@ -32,7 +32,7 @@ def strip_output(output):
 
 Parses a command result into a namedtuple. Returns the namedtuple.
 
-@param  <list>        command string, retval, output
+@param  <list>  command string, retval, output
 @return <namedtuple>  command string, retval, output
 
 """
