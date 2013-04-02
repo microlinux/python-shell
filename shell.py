@@ -129,8 +129,8 @@ def multi_command(commands, timeout=10, workers=4):
     workers = count
 
   """
-  Pool.imap can only pass one argument to a worker. To get around this, put
-  multiple arguments into a list.
+  Pool.imap() can only pass one argument to a worker. To get around this,
+  put multiple arguments into a list.
   """
   for i in range(count):
     commands[i] = [commands[i], timeout]
