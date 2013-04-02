@@ -20,7 +20,7 @@
 | return values and output (or some combination thereof). I would       |
 | prefer to do this with two lines of code. It sure would be nice if    |
 | the results were presented in a sane and consistent manner. Bonus if  |
-| they are returned in order.                                           |
+| they are returned in order. Commands are run currently? Get out!      |
 +-----------------------------------------------------------------------+
      |                           |
      |                           |
