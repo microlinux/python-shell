@@ -17,7 +17,7 @@ result as a list.
 
 """
 def strip_output(output):
-  for i in range(0, len(output)):
+  for i in range(len(output)):
     output[i] = output[i].strip()
 
   while output and not output[-1]:
