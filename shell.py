@@ -1,3 +1,5 @@
+""" Version 1.0-20130401 """
+
 from collections import namedtuple
 from itertools import imap
 from multiprocessing import Pool
