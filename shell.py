@@ -3,14 +3,15 @@ from itertools import imap
 from multiprocessing import Pool
 from shlex import split
 from subprocess import PIPE, Popen, STDOUT
+from traceback import format_exc
 
 """ Strips whitespace from command output.
 
 Strips horizontal and vertical whitespace from command output and returns a
 corresponding list.
 
-@param  <list>  command output
-@return <list>  stripped command output
+@param  <list>  raw output
+@return <list>  stripped output
 
 """
 def strip_output(output):
@@ -27,10 +28,10 @@ def strip_output(output):
 
 """ Parses a command result.
 
-Parses a command result into a namedtuple, then returns it.
+Parses a command result into a namedtuple and returns it.
 
-@param  <list>        command result
-@return <namedtuple>  command result
+@param  <list>        command string, retval, output
+@return <namedtuple>  command string, retval, output
 
 """
 def parse_result(result):
@@ -43,7 +44,7 @@ Runs a command passed as a list of arguments. Requires /usr/bin/timeout.
 Returns a list containing the command result.
 
 @param  <list>  command string, timeout in seconds
-@return <list>  command string, reval, stripped output
+@return <list>  command string, retval, stripped output
 
 """
 def worker(job):
@@ -62,7 +63,7 @@ def worker(job):
   except Exception, e:
     """ Special case, unexpected exception. """
     retval = 256
-    output = str(e).split('\n')
+    output = format_exc().splitlines()
   finally:
     if retval != 255 and retval != 256:
       if proc.returncode == 124:
@@ -77,11 +78,11 @@ def worker(job):
         """ Nothing unexpected happened, process result normally. """
         retval = proc.returncode
         try:
-          output = proc.communicate()[0].split('\n')
+          output = proc.communicate()[0].splitlines()
         except Exception, e:
           """ Special case, unexpected exception. """
           retval = 257
-          output = str(e).split('\n')
+          output = format_exc().splitlines()
           pass
 
     return [job[0], retval, strip_output(output)]
@@ -109,7 +110,7 @@ generator that returns ordered namedtuples of results.
 @param  <list>  command strings
 @param  <int>   individual command timeout in seconds
 @param  <int>   number of workers in pool
-@return <generator> namedtuples of results
+@return <generator> namedtuples - command string, retval, stripped output
 
 """
 def multi_command(commands, timeout=10, workers=4):
@@ -144,7 +145,6 @@ def multi_command(commands, timeout=10, workers=4):
 
 """ Example usage. """
 if __name__ == '__main__':
-  i = 0
   print '---------------------'
   print 'Execute one command'
   print '---------------------'
@@ -156,6 +156,7 @@ if __name__ == '__main__':
   print '----------------------'
   print 'Execute two commands'
   print '----------------------'
+  i = 0
   results = multi_command(['whoami', 'ping -c3 -i1 -W1 -q google.com'], 5)
   for result in results:
     print 'result%s.command: %s' % (i, result.command)
