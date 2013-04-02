@@ -7,8 +7,8 @@ from traceback import format_exc
 
 """ Strips whitespace from command output.
 
-Strips horizontal and vertical whitespace from command output and returns 
-the result as a list.
+Strips horizontal and vertical whitespace from command output. Returns the 
+result as a list.
 
 @param  <list>  raw output
 @return <list>  stripped output
@@ -28,7 +28,7 @@ def strip_output(output):
 
 """ Parses a command result.
 
-Parses a command result into a namedtuple and returns it.
+Parses a command result into a namedtuple. Returns the namedtuple.
 
 @param  <list>        command string, retval, output
 @return <namedtuple>  command string, retval, output
@@ -110,7 +110,7 @@ workers. Returns ordered results as a namedtuple generator.
 @param  <list>  command strings
 @param  <int>   individual command timeout in seconds
 @param  <int>   number of workers in pool
-@return <generator> namedtuples - command string, retval, stripped output
+@return <generator> command string, retval, stripped output
 
 """
 def multi_command(commands, timeout=10, workers=4):
