@@ -5,6 +5,7 @@ from itertools import imap
 from multiprocessing import Pool
 from shlex import split
 from subprocess import PIPE, Popen, STDOUT
+from threading import Timer
 from traceback import format_exc
 
 """ Strips whitespace from command output.
@@ -17,14 +18,15 @@ result as a list.
 
 """
 def strip_output(output):
-  for i in range(len(output)):
-    output[i] = output[i].strip()
+  if len(output) > 0:
+    for i in range(len(output)):
+      output[i] = output[i].strip()
 
-  while output and not output[-1]:
-    output.pop()
+    while output and not output[-1]:
+      output.pop()
 
-  while output and not output[0]:
-    output.pop(0)
+    while output and not output[0]:
+      output.pop(0)
 
   return output
 
@@ -42,8 +44,7 @@ def parse_result(result):
 
 """ Command worker function.
 
-Runs a command passed as a list of arguments. Requires /usr/bin/timeout.
-Returns the result as a list.
+Runs a command passed as a list of arguments. Returns the result as a list.
 
 @param  <list>  command string, timeout in seconds
 @return <list>  command string, retval, stripped output
@@ -54,38 +55,32 @@ def worker(job):
   retval = None
 
   try:
-    """ Fork the command, time out after x seconds. """
-    proc = Popen(split('/usr/bin/timeout %s %s' % (job[1], str(job[0]))),
-                 stdout=PIPE, stderr=STDOUT, close_fds=True)
-    proc.wait()
+    """ Setup the kill function used in the timer. """
+    kill = lambda this_proc: this_proc.kill()
+
+    """ Fork the command and get output. """
+    proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT,
+                       close_fds=True)
+    timer = Timer(job[1], kill, [proc])
+    timer.start()
+    output = proc.communicate()[0].splitlines()
+    timer.cancel()
   except OSError:
-    """ Special case, /usr/bin/timeout not found or executable. """
-    retval = 255
-    output = ['/usr/bin/timeout not found or executable']
+		""" Command not found. """
+    retval = 127
+    output = ['command not found']
   except Exception, e:
-    """ Special case, unexpected exception. """
-    retval = 256
+    """ Unexpected exception. """
+    retval = 257
     output = format_exc().splitlines()
   finally:
-    if retval != 255 and retval != 256:
-      if proc.returncode == 124:
-        """ Special case, command timed out. """
-        retval = 124;
+    if retval == None:
+		  if proc.returncode == -9:
+			  """ Command timed out. """
+        retval =  256
         output = ['command timed out']
-      elif proc.returncode == 127:
-        """ Special case, command not found or executable. """
-        retval = 127
-        output = ['command not found or executable']
       else:
-        """ Nothing unexpected happened, process result normally. """
         retval = proc.returncode
-        try:
-          output = proc.communicate()[0].splitlines()
-        except Exception, e:
-          """ Special case, unexpected exception. """
-          retval = 257
-          output = format_exc().splitlines()
-          pass
 
     return [job[0], retval, strip_output(output)]
 
@@ -144,53 +139,3 @@ def multi_command(commands, timeout=10, workers=4):
   pool.join()
 
   return imap(parse_result, results)
-
-""" Example usage. """
-if __name__ == '__main__':
-  print '---------------------'
-  print 'Execute one command'
-  print '---------------------'
-  result = command('whoami', 2)
-  print 'result.command: %s' % result.command
-  print 'result.retval : %s' % result.retval
-  print 'result.output : %s' % result.output
-  print
-  print '----------------------'
-  print 'Execute two commands'
-  print '----------------------'
-  i = 0
-  results = multi_command(['whoami', 'ping -c3 -i1 -W1 -q google.com'], 5)
-  for result in results:
-    print 'result%s.command: %s' % (i, result.command)
-    print 'result%s.retval : %s' % (i, result.retval)
-    print 'result%s.output : %s' % (i, result.output)
-    print
-    i = i + 1
-  print '----------------------------------'
-  print 'Execute one non-existent command'
-  print '----------------------------------'
-  result = command('/usr/bin/fake_binary_99 -f fake_opt', 2)
-  print 'result.command: %s' % result.command
-  print 'result.retval : %s' % result.retval
-  print 'result.output : %s' % result.output
-  print
-  print '------------------------------------'
-  print 'Execute one command that times out'
-  print '------------------------------------'
-  result = command('ping -c3 -i1 -W1 -q google.com', 2)
-  print 'result.command: %s' % result.command
-  print 'result.retval : %s' % result.retval
-  print 'result.output : %s' % result.output
-  print
-  print '---------------------------------------------'
-  print 'Execute three commands with varying results'
-  print '---------------------------------------------'
-  results = multi_command(['ls -l', '/usr/bin/fake_binary_99 -f fake_opt',
-                           'ping -c3 -i1 -W1 -q google.com'], 2)
-  i = 0
-  for result in results:
-    print 'result%s.command: %s' % (i, result.command)
-    print 'result%s.retval : %s' % (i, result.retval)
-    print 'result%s.output : %s' % (i, result.output)
-    print
-    i = i + 1
