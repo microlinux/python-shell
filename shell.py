@@ -27,7 +27,7 @@ def strip_output(output):
 
 """ Parses a command result.
 
-Parses a command result and returns a corresponding namedtuple.
+Parses a command result into a namedtuple, then returns it.
 
 @param  <list>        command result
 @return <namedtuple>  command result
@@ -39,8 +39,8 @@ def parse_result(result):
 
 """ Command worker function.
 
-Runs a command passed as a list of arguments. Requires /usr/bin/tmeout.
-Returns the command result as a list.
+Runs a command passed as a list of arguments. Requires /usr/bin/timeout.
+Returns a list containing the command result.
 
 @param  <list>  command string, timeout in seconds
 @return <list>  command string, reval, stripped output
@@ -62,8 +62,7 @@ def worker(job):
   except Exception, e:
     """ Special case, unexpected exception. """
     retval = 256
-    output = '%s' % e
-    output = strip_output(output.split('\n'))
+    output = str(e).split('\n')
   finally:
     if retval != 255 and retval != 256:
       if proc.returncode == 124:
@@ -78,15 +77,14 @@ def worker(job):
         """ Nothing unexpected happened, process result normally. """
         retval = proc.returncode
         try:
-          output = strip_output(proc.communicate()[0].split('\n'))
+          output = proc.communicate()[0].split('\n')
         except Exception, e:
           """ Special case, unexpected exception. """
           retval = 257
-          output = '%s' % e
-          output = strip_output(output.split('\n'))
+          output = str(e).split('\n')
           pass
 
-    return [job[0], retval, output]
+    return [job[0], retval, strip_output(output)]
 
 """ Executes a single command.
 
@@ -101,18 +99,17 @@ def command(command, timeout=10):
   assert type(command) is str, 'command is not a string'
   assert type(timeout) is int, 'timeout is not an integer'
 
-  """ Run the command. """
   return parse_result(worker([command, timeout]))
 
 """ Executes multiple commands concurrently.
 
-Creates a pool of the given size and runs multiple commands concurrently.
-Returns a generator that returns ordered namedtuples of results.
+Runs multiple commands concurrently in a pool of the given size. Returns a
+generator that returns ordered namedtuples of results.
 
 @param  <list>  command strings
 @param  <int>   individual command timeout in seconds
 @param  <int>   number of workers in pool
-@return <generator> ordered namedtuples of results
+@return <generator> namedtuples of results
 
 """
 def multi_command(commands, timeout=10, workers=4):
@@ -129,8 +126,8 @@ def multi_command(commands, timeout=10, workers=4):
     workers = count
 
   """
-  Pool.imap can only pass one argument to a worker. To get around this, we
-  put multiple arguments into a list.
+  Pool.imap can only pass one argument to a worker. To get around this, put
+  multiple arguments into a list.
   """
   for i in range(count):
     commands[i] = [commands[i], timeout]
