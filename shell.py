@@ -59,9 +59,9 @@ def worker(job):
                  stdout=PIPE, stderr=STDOUT, close_fds=True)
     proc.wait()
   except OSError:
-    """ Special case, /usr/bin/timeout not found. """
+    """ Special case, /usr/bin/timeout not found or executable. """
     retval = 255
-    output = ['/usr/bin/timeout not found or not executable']
+    output = ['/usr/bin/timeout not found or executable']
   except Exception, e:
     """ Special case, unexpected exception. """
     retval = 256
@@ -75,7 +75,7 @@ def worker(job):
       elif proc.returncode == 127:
         """ Special case, command not found or executable. """
         retval = 127
-        output = ['command not found or not executable']
+        output = ['command not found or executable']
       else:
         """ Nothing unexpected happened, process result normally. """
         retval = proc.returncode

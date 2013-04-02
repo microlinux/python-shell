@@ -25,7 +25,7 @@ def worker(job):
     proc.wait()
   except OSError:
     retval = 255
-    output = ['/usr/bin/timeout not found or not executable']
+    output = ['/usr/bin/timeout not found or executable']
   except Exception, e:
     retval = 256
     output = format_exc().splitlines()
@@ -36,7 +36,7 @@ def worker(job):
         output = ['command timed out']
       elif proc.returncode == 127:
         retval = 127
-        output = ['command not found or not executable']
+        output = ['command not found or executable']
       else:
         retval = proc.returncode
         try:
