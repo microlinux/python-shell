@@ -6,13 +6,17 @@ https://github.com/microlinux/python-shell
 
 version
 =======
-Version 1.1_BETA-20130402
+1.1_BETA-20130402
+
+notes
+=====
+Full testing for possible pipe corruption on kill has not been completed.
 
 history
 =======
-Version 1.0-20130401 			Initial release
-Version 1.1_BETA-20130402	Update to eliminate need for external timeout
-                          binary, now uses Threading.Timer()
+1.0-20130401 			Initial release
+1.1_BETA-20130402	Eliminate need for external timeout binary, now 
+                  uses Threading.Timer()
 
 truth
 =====

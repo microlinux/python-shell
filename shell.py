@@ -1,4 +1,4 @@
-""" Version 1.1_BETA-20130402 """
+""" 1.1_BETA-20130402 """
 
 from collections import namedtuple
 from itertools import imap
