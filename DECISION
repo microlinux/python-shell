@@ -15,9 +15,9 @@
    +---------------------+
 
 +-----------------------------------------------------------------------+
-| I need to run a single command and get the command I ran, it's return |
-| value, runtime and output (or some combination thereof). I would      |
-| like to do this with one line of code. It would be nice if the        |
+| I need to run a single command and get the command I ran, it's pid,   |
+| return value, runtime and output (or some combination thereof). I     |
+| would like to do this with one line of code. It would be nice if the  |
 | results were returned in a sane and consistent manner.                |
 +-----------------------------------------------------------------------+
      |                           |
@@ -33,10 +33,10 @@
 
 +-----------------------------------------------------------------------+
 | I need to run a multiple commands and get the commands I ran, their   |
-| return values, runtimes and output (or some combination thereof). I   |
-| would like to do this with one line of code. It would be nice if the  |
-| results were returned in a sane and consistent manner. Bonus if they  |
-| are returned in order. Concurrency would be nice.                     |
+| pids, return values, runtimes and output (or some combination         |
+| thereof). I would like to do this with one line of code. It would be  |
+| nice if the results were returned in a sane and consistent manner.    |
+| Bonus if they are returned in order. Concurrency would be nice.       |
 +-----------------------------------------------------------------------+
      |                           |
      |                           |
