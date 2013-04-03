@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+from sys import exit
+
 from shell import multi_command
 
 commands = []
@@ -20,7 +22,7 @@ for result in results:
   i = i + 1
 
 """ remove this if you want to continue, will use 150M-200M of RAM """
-
+exit()
 
 hosts = open('hosts.csv', 'r')
 for host in hosts:
