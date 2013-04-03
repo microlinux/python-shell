@@ -6,7 +6,13 @@ https://github.com/microlinux/python-shell
 
 version
 =======
-1.0-20130401
+Version 1.1_BETA-20130402
+
+history
+=======
+Version 1.0-20130401 			Initial release
+Version 1.1_BETA-20130402	Update to eliminate need for external timeout
+                          binary, now uses Threading.Timer()
 
 truth
 =====
