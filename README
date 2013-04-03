@@ -17,9 +17,10 @@ history
 1.0-20130401      Initial release.
 1.1_BETA-20130402 Eliminate need for external timeout binary, now
                   uses threading.Timer().
-                  retval values have changed.
+									retval values have changed.
                   Tests updated and moved to test/.
                   Added installer.
+									Added runtime to result namedtuples.
 
 install
 =======
@@ -51,10 +52,11 @@ return results in a normalized manner.
 command() returns a namedtuple and multi_command() returns a namedtuple
 generator:
 
-result.command  <str> command string
-result.retval   <int> retval
-result.output   <list> output split by line, stripped of vertical and
-                       horizontal whitespace
+result.command  <str> 	command string
+result.retval   <int>   retval
+result.runtime  <float>	runtime in seconds to 3 decimal places
+result.output   <list> 	output split by line, stripped of vertical and
+												horizontal whitespace
 
 retval = 127 if command not found
 retval = 256 on command timeout
@@ -70,6 +72,7 @@ Executes a command with a timeout. Returns the result as a namedtuple.
 result = command('whoami', 2)
 print result.command
 print result.retval
+result.runtime
 print result.output
 
 multi_command(list commands, int timeout=10, int workers=4)
@@ -81,4 +84,5 @@ results = multi_command(['whoami', 'uptime'], 2)
 for result in results:
   print result.command
   print result.retval
+	result.runtime
   print result.output

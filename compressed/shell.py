@@ -6,6 +6,7 @@ from multiprocessing import Pool
 from shlex import split
 from subprocess import PIPE, Popen, STDOUT
 from threading import Timer
+from time import time
 from traceback import format_exc
 def strip_output(output):
   if len(output) > 0:
@@ -17,19 +18,23 @@ def strip_output(output):
       output.pop(0)
   return output
 def parse_result(result):
-  return namedtuple("ResultTuple", ['command', 'retval', 'output'])._make(
-                    [result[0], result[1], result[2]])
+  return namedtuple("ResultTuple", ['command', 'retval', 'runtime',
+                    'output'])._make([result[0], result[1], result[2],
+                    result[3]])
 def worker(job):
   output = []
   retval = None
+  runtime = 0
   try:
     kill = lambda this_proc: this_proc.kill()
+    start = time()
     proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT,
                        close_fds=True)
     timer = Timer(job[1], kill, [proc])
     timer.start()
     output = proc.communicate()[0].splitlines()
     timer.cancel()
+    runtime = round(time() - start, 3)
   except OSError:
     retval = 127
     output = ['command not found']
@@ -43,7 +48,7 @@ def worker(job):
         output = ['command timed out']
       else:
         retval = proc.returncode
-    return [job[0], retval, strip_output(output)]
+    return [job[0], retval, runtime, strip_output(output)]
 def command(command, timeout=10):
   assert type(command) is str, 'command is not a string'
   assert type(timeout) is int, 'timeout is not an integer'
