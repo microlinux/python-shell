@@ -86,7 +86,7 @@ def worker(job):
       if proc.returncode == -9:
         """ Command timed out. """
         output = ['command timed out']
-
+      
       pid = proc.pid
       retval = proc.returncode
 

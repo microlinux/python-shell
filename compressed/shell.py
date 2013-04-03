@@ -18,13 +18,14 @@ def strip_output(output):
       output.pop(0)
   return output
 def parse_result(result):
-  return namedtuple("ResultTuple", ['command', 'retval', 'runtime',
+  return namedtuple("ResultTuple", ['command', 'pid', 'retval', 'runtime',
                     'output'])._make([result[0], result[1], result[2],
-                    result[3]])
+                    result[3], result[4]])
 def worker(job):
   output = []
+  pid = None
   retval = None
-  runtime = 0
+  runtime = None
   try:
     kill = lambda this_proc: this_proc.kill()
     start = time()
@@ -43,11 +44,10 @@ def worker(job):
   finally:
     if retval == None:
       if proc.returncode == -9:
-        retval =  256
         output = ['command timed out']
-      else:
-        retval = proc.returncode
-    return [job[0], retval, runtime, strip_output(output)]
+      pid = proc.pid
+      retval = proc.returncode
+    return [job[0], pid, retval, runtime, strip_output(output)]
 def command(command, timeout=10):
   assert type(command) is str, 'command is not a string'
   assert type(timeout) is int, 'timeout is not an integer'

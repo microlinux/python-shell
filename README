@@ -21,7 +21,8 @@ history
                   Tests updated and moved to test/.
                   Added installer.
                   Added runtime to results.
-                  close_fds is now False when running subprocesses
+                  close_fds is now False when running subprocesses.
+                  Added pid to results.
 
 install
 =======
@@ -54,17 +55,18 @@ command() returns a namedtuple and multi_command() returns a namedtuple
 generator:
 
 result.command  <str>   command string
+result.pid      <int>   pid of process (None on exception)
 result.retval   <int>   retval
-result.runtime  <float> runtime in seconds to 3 decimal places
+result.runtime  <float> runtime down to ms (None on exception)
 result.output   <list>  output split by line, stripped of vertical and
                         horizontal whitespace
 
-retval = 127 if command not found
-retval = 256 on command timeout
-retval = 257 on exception during execution or output collection
+retval = -9 on command timeout
+retval = 127 on command not found
+retval = 257 on exception
 
-On retval 127 or 256 a standard description is returned as output. On retval
-257, format_exc() is returned as output.
+On retval -9 or 127 a standard description is returned as output. On retval
+257, format_exc() is returned. Otherwise stdout + stderr is returned.
 
 command(str command, int timeout=10)
 ====================================
@@ -72,6 +74,7 @@ Executes a command with a timeout. Returns the result as a namedtuple.
 
 result = command('whoami', 2)
 print result.command
+print result.pid
 print result.retval
 print result.runtime
 print result.output
@@ -84,6 +87,7 @@ workers. Returns ordered results as a namedtuple generator.
 results = multi_command(['whoami', 'uptime'], 2)
 for result in results:
   print result.command
+  print result.pid
   print result.retval
   print result.runtime
   print result.output
