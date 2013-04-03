@@ -1,8 +1,8 @@
 +-----------------------------------------------------------------------+
 | I need to run a single command and get the command I ran, it's return |
 | value and output (or some combination thereof). I would prefer to do  |
-| this with two lines of code. It sure would be nice if the results     |
-| were presented in a sane and consistent manner.                       |
+| this with one line of code. It sure would be nice if the results were |
+| presented in a sane and consistent manner.                            |
 +-----------------------------------------------------------------------+
      |                           |
      |                           |
@@ -18,9 +18,9 @@
 +-----------------------------------------------------------------------+
 | I need to run a multiple commands and get the commands I ran, their   |
 | return values and output (or some combination thereof). I would       |
-| prefer to do this with two lines of code. It sure would be nice if    |
-| the results were presented in a sane and consistent manner. Bonus if  |
-| they are returned in order. Commands are run concurrently? Get out!   |
+| prefer to do this with one line of code. It sure would be nice if the |
+| results were presented in a sane and consistent manner. Bonus if they |
+| are returned in order. Concurrency would be nice.                     |
 +-----------------------------------------------------------------------+
      |                           |
      |                           |
