@@ -1,17 +1,19 @@
-""" Version 1.0-20130401 """
+""" 1.1_BETA-20130402 """
 from collections import namedtuple
 from itertools import imap
 from multiprocessing import Pool
 from shlex import split
 from subprocess import PIPE, Popen, STDOUT
+from threading import Timer
 from traceback import format_exc
 def strip_output(output):
-  for i in range(len(output)):
-    output[i] = output[i].strip()
-  while output and not output[-1]:
-    output.pop()
-  while output and not output[0]:
-    output.pop(0)
+  if len(output) > 0:
+    for i in range(len(output)):
+      output[i] = output[i].strip()
+    while output and not output[-1]:
+      output.pop()
+    while output and not output[0]:
+      output.pop(0)
   return output
 def parse_result(result):
   return namedtuple("ResultTuple", ['command', 'retval', 'output'])._make(
@@ -20,31 +22,26 @@ def worker(job):
   output = []
   retval = None
   try:
-    proc = Popen(split('/usr/bin/timeout %s %s' % (job[1], str(job[0]))),
-                 stdout=PIPE, stderr=STDOUT, close_fds=True)
-    proc.wait()
+    kill = lambda this_proc: this_proc.kill()
+    proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT,
+                       close_fds=True)
+    timer = Timer(job[1], kill, [proc])
+    timer.start()
+    output = proc.communicate()[0].splitlines()
+    timer.cancel()
   except OSError:
-    retval = 255
-    output = ['/usr/bin/timeout not found or executable']
+    retval = 127
+    output = ['command not found']
   except Exception, e:
-    retval = 256
+    retval = 257
     output = format_exc().splitlines()
   finally:
-    if retval != 255 and retval != 256:
-      if proc.returncode == 124:
-        retval = 124;
+    if retval == None:
+      if proc.returncode == -9:
+        retval =  256
         output = ['command timed out']
-      elif proc.returncode == 127:
-        retval = 127
-        output = ['command not found or executable']
       else:
         retval = proc.returncode
-        try:
-          output = proc.communicate()[0].splitlines()
-        except Exception, e:
-          retval = 257
-          output = format_exc().splitlines()
-          pass
     return [job[0], retval, strip_output(output)]
 def command(command, timeout=10):
   assert type(command) is str, 'command is not a string'
