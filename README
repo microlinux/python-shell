@@ -20,7 +20,7 @@ history
                   retval values have changed.
                   Tests updated and moved to test/.
                   Added installer.
-                  Added runtime to result namedtuples.
+                  Added runtime to results.
                   close_fds is now False when running subprocesses
 
 install
