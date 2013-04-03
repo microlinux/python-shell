@@ -16,7 +16,7 @@ history
 =======
 1.0-20130401      Initial release
 1.1_BETA-20130402 Eliminate need for external timeout binary, now
-                  uses Threading.Timer()
+                  uses threading.Timer()
 
 truth
 =====
@@ -39,7 +39,7 @@ cases. I am not a professional programmer. Criticisms and fixes welcome.
 shell
 =====
 shell provides two user facing functions that execute shell commands and
-return results in a normalized manner. /usr/bin/timeout is required.
+return results in a normalized manner.
 
 command() returns a namedtuple and multi_command() returns a namedtuple
 generator:
@@ -49,9 +49,9 @@ result.retval   <int> retval
 result.output   <list> output split by line, stripped of vertical and
                        horizontal whitespace
 
-retval = 127 if command not found or executable
+retval = 127 if command not found
 retval = 256 on command timeout
-retval = 257 on exception during execution
+retval = 257 on exception during execution or output collection
 
 On retval 127 or 256 a standard description is returned as output. On retval 
 257, format_exc() is returned as output.
