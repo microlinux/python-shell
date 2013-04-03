@@ -54,7 +54,7 @@ return results in a normalized manner.
 command() returns a namedtuple and multi_command() returns a namedtuple
 generator:
 
-result.command  <str>   command string
+result.command  <str>   command
 result.pid      <int>   pid of process (None on exception)
 result.retval   <int>   retval
 result.runtime  <float> runtime down to ms (None on exception)

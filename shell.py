@@ -36,7 +36,7 @@ def strip_output(output):
 
 Parses a command result into a namedtuple. Returns the namedtuple.
 
-@param  <list>  command string, retval, output
+@param  <list>  command, retval, output
 @return <namedtuple>  command, pid, retval, runtime/secs, output
 
 """
@@ -115,7 +115,7 @@ workers. Returns ordered results as a namedtuple generator.
 @param  <list>  commands
 @param  <int>   individual command timeout in seconds
 @param  <int>   number of workers in pool
-@return <generator> command string, retval, runtime, stripped output
+@return <generator> command, pid, retval, runtime, stripped output
 
 """
 def multi_command(commands, timeout=10, workers=4):
