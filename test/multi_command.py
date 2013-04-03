@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-from sys import path
-path.append('..')
 from shell import multi_command
 
 commands = []

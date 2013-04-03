@@ -20,10 +20,6 @@ history
                   retval values have changed.
                   Tests updated and moved to test/.
 
-install
-======
-python setup.py install
-
 truth
 =====
 This program is free software: you can redistribute it and/or modify it
