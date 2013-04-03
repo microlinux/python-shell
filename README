@@ -21,6 +21,7 @@ history
                   Tests updated and moved to test/.
                   Added installer.
                   Added runtime to result namedtuples.
+                  close_fds is now False when running subprocesses
 
 install
 =======

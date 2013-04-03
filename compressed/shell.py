@@ -28,8 +28,7 @@ def worker(job):
   try:
     kill = lambda this_proc: this_proc.kill()
     start = time()
-    proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT,
-                       close_fds=True)
+    proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT)
     timer = Timer(job[1], kill, [proc])
     timer.start()
     output = proc.communicate()[0].splitlines()

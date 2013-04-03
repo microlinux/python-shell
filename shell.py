@@ -64,8 +64,7 @@ def worker(job):
     start = time()
 
     """ Fork the command and get output. """
-    proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT,
-                       close_fds=True)
+    proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT)
     timer = Timer(job[1], kill, [proc])
 
     timer.start()
