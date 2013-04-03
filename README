@@ -14,8 +14,8 @@ Full testing for possible pipe corruption on kill has not been completed.
 
 history
 =======
-1.0-20130401 			Initial release
-1.1_BETA-20130402	Eliminate need for external timeout binary, now 
+1.0-20130401      Initial release
+1.1_BETA-20130402 Eliminate need for external timeout binary, now
                   uses Threading.Timer()
 
 truth
@@ -55,8 +55,8 @@ retval = 255 if /usr/bin/timeout not found or executable
 retval = 256 on exepction during execution
 retval = 257 on execption during output collection
 
-On retval 124, 127 or 255 a standard description is returned. On retval 256 
-and 257, output will be format_exc(). 
+On retval 124, 127 or 255 a standard description is returned. On retval 256
+and 257, output will be format_exc().
 
 command(str command, int timeout=10)
 ====================================

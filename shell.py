@@ -66,7 +66,7 @@ def worker(job):
     output = proc.communicate()[0].splitlines()
     timer.cancel()
   except OSError:
-		""" Command not found. """
+    """ Command not found. """
     retval = 127
     output = ['command not found']
   except Exception, e:
@@ -75,8 +75,8 @@ def worker(job):
     output = format_exc().splitlines()
   finally:
     if retval == None:
-		  if proc.returncode == -9:
-			  """ Command timed out. """
+      if proc.returncode == -9:
+        """ Command timed out. """
         retval =  256
         output = ['command timed out']
       else:
