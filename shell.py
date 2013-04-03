@@ -115,7 +115,7 @@ workers. Returns ordered results as a namedtuple generator.
 @param  <list>  commands
 @param  <int>   individual command timeout in seconds
 @param  <int>   number of workers in pool
-@return <generator> command, pid, retval, runtime, stripped output
+@return <generator> command, pid, retval, runtime/secs, stripped output
 
 """
 def multi_command(commands, timeout=10, workers=4):
