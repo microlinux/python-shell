@@ -1,4 +1,5 @@
 """ 1.1_BETA-20130402 """
+""" https://github.com/microlinux/python-shell """
 from collections import namedtuple
 from itertools import imap
 from multiprocessing import Pool
