@@ -32,7 +32,7 @@
    +---------------+           +----------------------+
 
 +-----------------------------------------------------------------------+
-| I need to run a multiple commands and get the commands I ran, their   |
+| I need to run multiple commands and get the commands I ran, their     |
 | pids, return values, runtimes and output (or some combination         |
 | thereof). I would like to do this with one line of code. It would be  |
 | nice if the results were returned in a sane and consistent manner.    |
