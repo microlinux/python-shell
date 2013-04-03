@@ -1,4 +1,20 @@
 +-----------------------------------------------------------------------+
+| I need to do something this module was not designed to do.            |
++-----------------------------------------------------------------------+
+     |                           |
+     |                           |
+   +-----+                     +----+
+   | Yes |                     | No |
+   +-----+                     +----+
+     |                           |
+     |                           |
+   +---------------------+     +-----------+
+   | do not use shell,   |     | use shell |
+   | alternately modify  |     +-----------+
+   | shell and use it    |
+   +---------------------+
+
++-----------------------------------------------------------------------+
 | I need to run a single command and get the command I ran, it's return |
 | value and output (or some combination thereof). I would prefer to do  |
 | this with one line of code. It sure would be nice if the results were |
@@ -32,19 +48,3 @@
    +---------------------+     +----------------------------+
    | use multi_command() |     | do not use multi_command() |
    +---------------------+     +----------------------------+
-
-+-----------------------------------------------------------------------+
-| I need to do something this module was not designed to do.            |
-+-----------------------------------------------------------------------+
-     |                           |
-     |                           |
-   +-----+                     +----+
-   | Yes |                     | No |
-   +-----+                     +----+
-     |                           |
-     |                           |
-   +---------------------+     +-----------+
-   | do not use shell,   |     | use shell |
-   | alternately modify  |     +-----------+
-   | shell and use it    |
-   +---------------------+
