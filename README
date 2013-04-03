@@ -49,14 +49,12 @@ result.retval   <int> retval
 result.output   <list> output split by line, stripped of vertical and
                        horizontal whitespace
 
-retval = 124 on execution timeout
 retval = 127 if command not found or executable
-retval = 255 if /usr/bin/timeout not found or executable
-retval = 256 on exepction during execution
-retval = 257 on execption during output collection
+retval = 256 on command timeout
+retval = 257 on exception during execution
 
-On retval 124, 127 or 255 a standard description is returned. On retval 256
-and 257, output will be format_exc().
+On retval 127 or 256 a standard description is returned as output. On retval 
+257, format_exc() is returned as output.
 
 command(str command, int timeout=10)
 ====================================
