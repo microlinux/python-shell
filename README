@@ -18,7 +18,7 @@ history
 1.1_BETA-20130402 Eliminate need for external timeout binary, now
                   uses threading.Timer().
                   retval values have changed.
-                  Tests updated and moved to test/
+                  Tests updated and moved to test/.
 
 truth
 =====
