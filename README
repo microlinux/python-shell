@@ -16,7 +16,7 @@ history
 =======
 1.0-20130401      Initial release
 1.1_BETA-20130402 Eliminate need for external timeout binary, now
-                  uses threading.Timer()
+                  uses threading.Timer(). retval values have changed.
 
 truth
 =====
@@ -53,7 +53,7 @@ retval = 127 if command not found
 retval = 256 on command timeout
 retval = 257 on exception during execution or output collection
 
-On retval 127 or 256 a standard description is returned as output. On retval 
+On retval 127 or 256 a standard description is returned as output. On retval
 257, format_exc() is returned as output.
 
 command(str command, int timeout=10)
