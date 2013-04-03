@@ -16,7 +16,8 @@ history
 =======
 1.0-20130401      Initial release
 1.1_BETA-20130402 Eliminate need for external timeout binary, now
-                  uses threading.Timer(). retval values have changed.
+                  uses threading.Timer(). 
+									retval values have changed.
 
 truth
 =====
