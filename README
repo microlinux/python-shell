@@ -19,10 +19,7 @@ history
                   uses threading.Timer().
                   retval values have changed.
                   Tests updated and moved to test/.
-
-install
-======
-python setup.py install
+                  Added installer.
 
 truth
 =====
