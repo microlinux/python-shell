@@ -24,8 +24,8 @@ history
                   Added runtime to results.
                   close_fds is now False when running subprocesses.
                   Added pid to results.
-1.2-20130408      Various clean ups and minor interval changes
-                  Removed compressed version, mostly laziness
+1.2-20130408      Various clean ups and minor internal changes.
+                  Removed compressed version, mostly laziness.
 
 install
 =======
