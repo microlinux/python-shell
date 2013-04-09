@@ -86,7 +86,7 @@ def worker(job):
       if proc.returncode == -9:
         """ Command timed out. """
         output = ['command timed out']
-      
+
       pid = proc.pid
       retval = proc.returncode
 
@@ -96,7 +96,7 @@ def worker(job):
 
 Executes a command with a timeout. Returns the result as a namedtuple.
 
-@param  <str> command string
+@param  <str> command
 @param  <int> timeout in seconds
 @return <namedtuple>  command, pid, retval, runtime/secs, stripped output
 
@@ -112,7 +112,7 @@ def command(command, timeout=10):
 Executes commands concurrently with individual timeouts in a pool of
 workers. Returns ordered results as a namedtuple generator.
 
-@param  <list>  command strings
+@param  <list>  commands
 @param  <int>   individual command timeout in seconds
 @param  <int>   number of workers in pool
 @return <generator> command string, retval, runtime, stripped output
