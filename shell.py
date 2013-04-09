@@ -1,6 +1,18 @@
-""" version 1.2-20130408 """
-""" https://github.com/microlinux/python-shell """
+""" shell
 
+version 1.2-20130408
+https://github.com/microlinux/python-shell
+
+Module for easily executing shell commands and retreiving their results in a
+normalized manner.
+
+See https://github.com/microlinux/python-shell/blob/master/README.
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 3.
+
+"""
 from collections import namedtuple
 from itertools import imap
 from multiprocessing import Pool

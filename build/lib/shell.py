@@ -1,4 +1,4 @@
-""" 1.1_BETA-20130402 """
+""" version 1.2-20130408 """
 """ https://github.com/microlinux/python-shell """
 
 from collections import namedtuple
@@ -10,63 +10,66 @@ from threading import Timer
 from time import time
 from traceback import format_exc
 
-""" Strips whitespace from command output.
+""" shell.strip_command_output()
 
-Strips horizontal and vertical whitespace from command output. Returns the
-result as a list.
+Strips horizontal and vertical whitespace from a list of lines. Returns
+the result as a list.
 
-@param  <list>  raw output
-@return <list>  stripped output
+@param  <list>  [str] lines
+
+@return <list>  [str] lines
 
 """
-def strip_output(output):
-  if len(output) > 0:
-    for i in range(len(output)):
-      output[i] = output[i].strip()
+def strip_command_output(lines):
+  if len(lines) > 0:
+    for i in range(len(lines)):
+      lines[i] = lines[i].strip()
 
-    while output and not output[-1]:
-      output.pop()
+    while lines and not lines[-1]:
+      lines.pop()
 
-    while output and not output[0]:
-      output.pop(0)
+    while lines and not lines[0]:
+      lines.pop(0)
 
-  return output
+  return lines
 
-""" Parses a command result.
+""" shell.parse_command_result()
 
 Parses a command result into a namedtuple. Returns the namedtuple.
 
-@param  <list>  command string, retval, output
-@return <namedtuple>  command, pid, retval, runtime/secs, output
+@param  <list>  [str] command, [int] pid, [int] retval, [float] runtime,
+                [list] output
+
+@return <namedtuple>  [str] command, [int] pid, [int] retval,
+                      [float] runtime, [list] output
 
 """
-def parse_result(result):
-  return namedtuple("ResultTuple", ['command', 'pid', 'retval', 'runtime',
+def parse_command_result(result):
+  return namedtuple('ResultTuple', ['command', 'pid', 'retval', 'runtime',
                     'output'])._make([result[0], result[1], result[2],
                     result[3], result[4]])
 
-""" Command worker function.
+""" shell.command_worker()
 
-Runs a command passed as a list of arguments. Returns the result as a list.
+Executes a command with a timeout. Returns the result as a list.
 
-@param  <list>  command, timeout in seconds
-@return <list>  command, pid, retval, runtime/secs, stripped output
+@param  <list>  [str] command, [int|float] secs before timeout
+
+@return <list>  [str] command, [int] pid, [int] retval,
+                [float] runtime/secs, [list] output
 
 """
-def worker(job):
+def command_worker(command):
+  kill = lambda this_proc: this_proc.kill()
   output = []
   pid = None
   retval = None
   runtime = None
+  start = time()
 
   try:
-    """ Setup the kill function used in the timer. """
-    kill = lambda this_proc: this_proc.kill()
-    start = time()
-
-    """ Fork the command and get output. """
-    proc = Popen(split('%s' % str(job[0])), stdout=PIPE, stderr=STDOUT)
-    timer = Timer(job[1], kill, [proc])
+    proc = Popen(split('%s' % str(command[0])), stdout=PIPE, stderr=STDOUT)
+    timer = Timer(command[1], kill, [proc])
 
     timer.start()
     output = proc.communicate()[0].splitlines()
@@ -74,76 +77,78 @@ def worker(job):
 
     runtime = round(time() - start, 3)
   except OSError:
-    """ Command not found. """
     retval = 127
     output = ['command not found']
   except Exception, e:
-    """ Unexpected exception. """
     retval = 257
     output = format_exc().splitlines()
   finally:
     if retval == None:
       if proc.returncode == -9:
-        """ Command timed out. """
         output = ['command timed out']
 
       pid = proc.pid
       retval = proc.returncode
 
-    return [job[0], pid, retval, runtime, strip_output(output)]
+    return [command[0], pid, retval, runtime, strip_command_output(output)]
 
-""" Executes a command.
+""" shell.command()
 
 Executes a command with a timeout. Returns the result as a namedtuple.
 
-@param  <str> command
-@param  <int> timeout in seconds
-@return <namedtuple>  command, pid, retval, runtime/secs, stripped output
+@param  <str>       command
+@param  <int|float> secs before timeout (10)
+
+@return <namedtuple>  [str] command, [int] pid, [int] retval,
+                      [float] runtime, [list] output
 
 """
 def command(command, timeout=10):
-  assert type(command) is str, 'command is not a string'
-  assert type(timeout) is int, 'timeout is not an integer'
+  if not isinstance(command, str):
+    raise TypeError('command is not a string')
+  elif not isinstance(timeout, int) and not isinstance(timeout, float):
+    raise TypeError('timeout is not an integer or float')
 
-  return parse_result(worker([command, timeout]))
+  return parse_command_result(command_worker([command, timeout]))
 
-""" Executes commands concurrently.
+""" shell.multi_command()
 
-Executes commands concurrently with individual timeouts in a pool of
-workers. Returns ordered results as a namedtuple generator.
+Executes multiple commands concurrently with individual timeouts in a pool
+of workers. Returns ordered results as a namedtuple generator.
 
-@param  <list>  commands
-@param  <int>   individual command timeout in seconds
-@param  <int>   number of workers in pool
-@return <generator> command string, retval, runtime, stripped output
+@param  <list>      [str] commands
+@param  <int|float> secs before individual timeout (10)
+@param  <int>       max workers (4)
+
+@return <generator> <namedtuple> [str] command, [int] pid, [int] retval,
+                                 [float] runtime, [list] output
 
 """
 def multi_command(commands, timeout=10, workers=4):
-  assert type(commands) is list, 'commands is not a list'
+  if not isinstance(commands, list):
+    raise TypeError('commands is not a list')
+
   for i in range(len(commands)):
-    assert type(commands[i]) is str, 'commands[%s] is not a string' % i
-  assert type(timeout) is int, 'timeout is not an integer'
-  assert type(workers) is int, 'workers is not an integer'
+    if not isinstance(commands[i], str):
+      raise TypeError('commands[%s] is not a string' % i)
+
+  if not isinstance(timeout, int) and not isinstance(timeout, float):
+    raise TypeError('timeout is not an integer or float')
+  elif not isinstance(workers, int):
+    raise TypeError('workers is not an integer')
 
   count = len(commands)
 
-  """ No sense in having more workers than jobs. """
   if workers > count:
     workers = count
 
-  """
-  Pool.imap() can only pass one argument to a worker. To get around this,
-  put multiple arguments into a list.
-  """
   for i in range(count):
     commands[i] = [commands[i], timeout]
 
-  """ Fire up the pool, create a generator with ordered results. """
   pool = Pool(processes=workers)
-  results = pool.imap(worker, commands)
+  results = pool.imap(command_worker, commands)
 
-  """ Wait for all jobs to finish. """
   pool.close()
   pool.join()
 
-  return imap(parse_result, results)
+  return imap(parse_command_result, results)
