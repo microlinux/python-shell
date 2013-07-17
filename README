@@ -8,10 +8,6 @@ version
 =======
 1.2-20130408
 
-notes
-=====
-Full testing for possible pipe corruption on kill has not been completed.
-
 history
 =======
 1.0-20130401      Initial release.
