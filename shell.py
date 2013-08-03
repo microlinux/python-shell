@@ -1,6 +1,6 @@
 """ shell
 
-version 1.3
+version 1.3b
 https://github.com/microlinux/python-shell
 
 Module for easily executing shell commands and retreiving their results in a
