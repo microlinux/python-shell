@@ -21,7 +21,7 @@ history
                Added pid to results.
 20130408 1.2   Various clean ups and minor internal changes.
                Removed compressed version, mostly laziness.
-20130408 1.3b  Added stdin support.
+20130802 1.3b  Added stdin support.
                Reworked function param checks.
 
 install
