@@ -10,17 +10,19 @@ version
 
 history
 =======
-1.0-20130401      Initial release.
-1.1_BETA-20130402 Eliminate need for external timeout binary, now
-                    uses threading.Timer().
-                  retval values have changed.
-                  Tests updated and moved to test/.
-                  Added installer.
-                  Added runtime to results.
-                  close_fds is now False when running subprocesses.
-                  Added pid to results.
-1.2-20130408      Various clean ups and minor internal changes.
-                  Removed compressed version, mostly laziness.
+20130401 1.0   Initial release.
+20130402 1.1b  Eliminate need for external timeout binary, now
+                 uses threading.Timer().
+               retval values have changed.
+               Tests updated and moved to test/.
+               Added installer.
+               Added runtime to results.
+               close_fds is now False when running subprocesses.
+               Added pid to results.
+20130408 1.2   Various clean ups and minor internal changes.
+               Removed compressed version, mostly laziness.
+20130408 1.3b  Added stdin support.
+               Reworked function param checks.
 
 install
 =======
@@ -66,12 +68,13 @@ retval = 257 on exception
 On retval -9 or 127 a standard description is returned as output. On retval
 257, format_exc() is returned. Otherwise stdout + stderr is returned.
 
-----------------------------------------------
-command(<str> command, <int|float> timeout=10)
-----------------------------------------------
+------------------------------------------------------------------
+command(<str> command, <int|float> timeout=10, <mixed> stdin=None)
+------------------------------------------------------------------
 Executes a command with a timeout. Returns the result as a namedtuple.
 
 result = command('whoami', 2)
+
 print result.command
 print result.pid
 print result.retval
@@ -79,12 +82,15 @@ print result.runtime
 print result.output
 
 -----------------------------------------------------------------------
-multi_command(<list> commands, <int|float> timeout=10, <int> workers=4)
+multi_command(<list> commands, <int|float> timeout=10, <int> workers=4,
+              <list> stdins=None
 -----------------------------------------------------------------------
-Executes commands concurrently with individual timeouts in a pool of
-workers. Returns ordered results as a namedtuple generator.
+Executes commands concurrently with individual timeouts in a pool of workers.
+Length of stdins must match commands, empty indexes must contain None. Returns
+ordered results as a namedtuple generator.
 
 results = multi_command(['whoami', 'uptime'], 2)
+
 for result in results:
   print result.command
   print result.pid

@@ -1,6 +1,6 @@
 """ shell
 
-version 1.2-20130408
+version 1.3
 https://github.com/microlinux/python-shell
 
 Module for easily executing shell commands and retreiving their results in a
@@ -24,8 +24,8 @@ from traceback import format_exc
 
 """ shell.strip_command_output()
 
-Strips horizontal and vertical whitespace from a list of lines. Returns
-the result as a list.
+Strips horizontal and vertical whitespace from a list of lines. Returns the
+result as a list.
 
 @param  <list>  [str] lines
 
@@ -49,11 +49,11 @@ def strip_command_output(lines):
 
 Parses a command result into a namedtuple. Returns the namedtuple.
 
-@param  <list>  [str] command, [int] pid, [int] retval, [float] runtime,
+@param  <list>  [str] command, [int] pid, [int] retval, [float] runtime/secs,
                 [list] output
 
 @return <namedtuple>  [str] command, [int] pid, [int] retval,
-                      [float] runtime, [list] output
+                      [float] runtime/secs, [list] output
 
 """
 def parse_command_result(result):
@@ -65,7 +65,7 @@ def parse_command_result(result):
 
 Executes a command with a timeout. Returns the result as a list.
 
-@param  <list>  [str] command, [int|float] secs before timeout
+@param  <list>  [str] command, [int|float] secs before timeout, [mixed] stdin
 
 @return <list>  [str] command, [int] pid, [int] retval,
                 [float] runtime/secs, [list] output
@@ -80,11 +80,12 @@ def command_worker(command):
   start = time()
 
   try:
-    proc = Popen(split('%s' % str(command[0])), stdout=PIPE, stderr=STDOUT)
+    proc = Popen(split('%s' % str(command[0])), stdout=PIPE, stderr=STDOUT,
+                       stdin=PIPE)
     timer = Timer(command[1], kill, [proc])
 
     timer.start()
-    output = proc.communicate()[0].splitlines()
+    output = proc.communicate(command[2])[0].splitlines()
     timer.cancel()
 
     runtime = round(time() - start, 3)
@@ -110,33 +111,37 @@ Executes a command with a timeout. Returns the result as a namedtuple.
 
 @param  <str>       command
 @param  <int|float> secs before timeout (10)
+@param  <mixed>     stdin (None)
 
 @return <namedtuple>  [str] command, [int] pid, [int] retval,
-                      [float] runtime, [list] output
+                      [float] runtime/secs, [list] output
 
 """
-def command(command, timeout=10):
+def command(command, timeout=10, stdin=None):
   if not isinstance(command, str):
     raise TypeError('command is not a string')
-  elif not isinstance(timeout, int) and not isinstance(timeout, float):
+
+  if not isinstance(timeout, int) and not isinstance(timeout, float):
     raise TypeError('timeout is not an integer or float')
 
-  return parse_command_result(command_worker([command, timeout]))
+  return parse_command_result(command_worker([command, timeout, stdin]))
 
 """ shell.multi_command()
 
-Executes multiple commands concurrently with individual timeouts in a pool
-of workers. Returns ordered results as a namedtuple generator.
+Executes commands concurrently with individual timeouts in a pool of workers.
+Length of stdins must match commands, empty indexes must contain None. Returns
+ordered results as a namedtuple generator.
 
 @param  <list>      [str] commands
 @param  <int|float> secs before individual timeout (10)
 @param  <int>       max workers (4)
+@param  <list>      [mixed] stdins (None)
 
 @return <generator> <namedtuple> [str] command, [int] pid, [int] retval,
-                                 [float] runtime, [list] output
+                                 [float] runtime/secs, [list] output
 
 """
-def multi_command(commands, timeout=10, workers=4):
+def multi_command(commands, timeout=10, workers=4, stdins=None):
   if not isinstance(commands, list):
     raise TypeError('commands is not a list')
 
@@ -146,8 +151,14 @@ def multi_command(commands, timeout=10, workers=4):
 
   if not isinstance(timeout, int) and not isinstance(timeout, float):
     raise TypeError('timeout is not an integer or float')
-  elif not isinstance(workers, int):
+
+  if not isinstance(workers, int):
     raise TypeError('workers is not an integer')
+
+  if stdins and not isinstance(stdins, list):
+    raise TypeError('stdins is not a list')
+  elif stdins and len(stdins) != len(commands):
+    raise ValueError('length of stdins does not match commands')
 
   count = len(commands)
 
@@ -155,7 +166,12 @@ def multi_command(commands, timeout=10, workers=4):
     workers = count
 
   for i in range(count):
-    commands[i] = [commands[i], timeout]
+    if stdins:
+      stdin = stdins[i]
+    else:
+      stdin = None
+
+    commands[i] = [commands[i], timeout, stdin]
 
   pool = Pool(processes=workers)
   results = pool.imap(command_worker, commands)
