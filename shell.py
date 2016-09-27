@@ -7,7 +7,7 @@ Author:
 	Todd Mueller <firstname@firstnamelastname.com>
   
 Version:
-  2.0 20160926
+	2.0 20160926
 
 License:
 	This program is free software: you can redistribute it and/or modify it
