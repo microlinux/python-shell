@@ -15,7 +15,6 @@ License:
 	Free Software Foundation, version 3. See https://www.gnu.org/licenses/.
 
 """
-
 import collections
 import multiprocessing
 import shlex
