@@ -1,182 +1,203 @@
-""" shell
+"""Functions for executing one shell command and multiple, concurrent shell commands.
 
-version 1.3b
-https://github.com/microlinux/python-shell
+Repository:
+	https://github.com/microlinux/python-shell
 
-Module for easily executing shell commands and retreiving their results in a
-normalized manner.
+Author:
+	Todd Mueller <firstname@firstnamelastname.com>
+  
+Version:
+	2.0 20160926
 
-See https://github.com/microlinux/python-shell/blob/master/README.
-
-This program is free software: you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by the Free
-Software Foundation, version 3. See https://www.gnu.org/licenses/.
-
-"""
-from collections import namedtuple
-from itertools import imap
-from multiprocessing import Pool
-from shlex import split
-from subprocess import PIPE, Popen, STDOUT
-from threading import Timer
-from time import time
-from traceback import format_exc
-
-""" shell.strip_command_output()
-
-Strips horizontal and vertical whitespace from a list of lines. Returns the
-result as a list.
-
-@param  <list>  [str] lines
-
-@return <list>  [str] lines
+License:
+	This program is free software: you can redistribute it and/or modify it
+	under the terms of the GNU General Public License as published by the
+	Free Software Foundation, version 3. See https://www.gnu.org/licenses/.
 
 """
-def strip_command_output(lines):
-  if len(lines) > 0:
-    for i in range(len(lines)):
-      lines[i] = lines[i].strip()
 
-    while lines and not lines[-1]:
-      lines.pop()
+import collections
+import multiprocessing
+import shlex
+import subprocess
+import threading
+import time
+import traceback
 
-    while lines and not lines[0]:
-      lines.pop(0)
+CommandResult = collections.namedtuple('CommandResult', ['cmd', 'pid', 'retval', 'runtime', 'stdout', 'stderr'])
+"""Namedtuple representing the result of a shell command.
 
-  return lines
-
-""" shell.parse_command_result()
-
-Parses a command result into a namedtuple. Returns the namedtuple.
-
-@param  <list>  [str] command, [int] pid, [int] retval, [float] runtime/secs,
-                [list] output
-
-@return <namedtuple>  [str] command, [int] pid, [int] retval,
-                      [float] runtime/secs, [list] output
+Fields:
+	cmd (str): command executed
+	pid (int): process id
+	retval (int): return value
+	runtime (int): runtime in msecs
+	stdout (str): stdout buffer, horizontal/vertical whitespace stripped
+	stderr (str): stderr buffer, horizontal/vertical whitespace stripped
 
 """
-def parse_command_result(result):
-  return namedtuple('ResultTuple', ['command', 'pid', 'retval', 'runtime',
-                    'output'])._make([result[0], result[1], result[2],
-                    result[3], result[4]])
 
-""" shell.command_worker()
+def stripper(string):
+	"""Sexily strips horizontal and vertical whitespace from a string.
 
-Executes a command with a timeout. Returns the result as a list.
+	Args:
+		string (str): string to strip
 
-@param  <list>  [str] command, [int|float] secs before timeout, [mixed] stdin
+	Returns:
+		str: stripped string
 
-@return <list>  [str] command, [int] pid, [int] retval,
-                [float] runtime/secs, [list] output
+	"""
 
-"""
-def command_worker(command):
-  kill = lambda this_proc: this_proc.kill()
-  output = []
-  pid = None
-  retval = None
-  runtime = None
-  start = time()
+	lines = map(str.strip, string.splitlines())
 
-  try:
-    proc = Popen(split('%s' % str(command[0])), stdout=PIPE, stderr=STDOUT,
-                       stdin=PIPE)
-    timer = Timer(command[1], kill, [proc])
+	while lines and not lines[-1]:
+		lines.pop()
 
-    timer.start()
-    output = proc.communicate(command[2])[0].splitlines()
-    timer.cancel()
+	while lines and not lines[0]:
+		lines.pop(0)
 
-    runtime = round(time() - start, 3)
-  except OSError:
-    retval = 127
-    output = ['command not found']
-  except Exception, e:
-    retval = 257
-    output = format_exc().splitlines()
-  finally:
-    if retval == None:
-      if proc.returncode == -9:
-        output = ['command timed out']
+	return '\n'.join(lines)
 
-      pid = proc.pid
-      retval = proc.returncode
+def command(cmd, timeout=10, stdin=None):
+	"""Executes one shell command and returns the result.
 
-    return [command[0], pid, retval, runtime, strip_command_output(output)]
+	Args:
+		cmd (str): command to execute
+		timeout (int): timeout in seconds (10)
+		stdin (str): input (None)
 
-""" shell.command()
+	Returns:
+		CommandResult: result of command
 
-Executes a command with a timeout. Returns the result as a namedtuple.
+    """
 
-@param  <str>       command
-@param  <int|float> secs before timeout (10)
-@param  <mixed>     stdin (None)
+	kill = lambda this_proc: this_proc.kill()
+	pid = None
+	retval = None
+	runtime = None
+	stderr = None
+	stdout = None
 
-@return <namedtuple>  [str] command, [int] pid, [int] retval,
-                      [float] runtime/secs, [list] output
+	try:
+		start = time.time() * 1000.0
+		proc = subprocess.Popen(shlex.split(cmd),
+		                        stdout=subprocess.PIPE,
+		                        stderr=subprocess.PIPE,
+								stdin=subprocess.PIPE,
+								close_fds=True,
+								shell=False)
 
-"""
-def command(command, timeout=10, stdin=None):
-  if not isinstance(command, str):
-    raise TypeError('command is not a string')
+		timer = threading.Timer(timeout, kill, [proc])
 
-  if not isinstance(timeout, int) and not isinstance(timeout, float):
-    raise TypeError('timeout is not an integer or float')
+		timer.start()
+		stdout, stderr = map(stripper, proc.communicate(input=stdin))
+		timer.cancel()
 
-  return parse_command_result(command_worker([command, timeout, stdin]))
+		runtime = int((time.time() * 1000.0) - start)
+	except OSError:
+		retval = 127
+		stderr = 'command not found'
+	except:
+		retval = 255
+		stderr = traceback.format_exc()
+	finally:
+		if retval == None:
+			if proc.returncode == -9:
+				retval = 254
+				stderr = 'command timed out'
+			else:
+				retval = proc.returncode
 
-""" shell.multi_command()
+			pid = proc.pid
 
-Executes commands concurrently with individual timeouts in a pool of workers.
-Length of stdins must match commands, empty indexes must contain None. Returns
-ordered results as a namedtuple generator.
+	return CommandResult(cmd, pid, retval, runtime, stdout, stderr)
 
-@param  <list>      [str] commands
-@param  <int|float> secs before individual timeout (10)
-@param  <int>       max workers (4)
-@param  <list>      [mixed] stdins (None)
+def command_wrapper(args):
+	"""Wrapper used my multi_command to pass command arguments as a list."""
 
-@return <generator> <namedtuple> [str] command, [int] pid, [int] retval,
-                                 [float] runtime/secs, [list] output
+	return command(*args)
 
-"""
-def multi_command(commands, timeout=10, workers=4, stdins=None):
-  if not isinstance(commands, list):
-    raise TypeError('commands is not a list')
+def multi_command(cmds, timeout=10, stdins=None, workers=4):
+	"""Executes multiple shell commands concurrently and returns the results.
 
-  for i in range(len(commands)):
-    if not isinstance(commands[i], str):
-      raise TypeError('commands[%s] is not a string' % i)
+	If stdins is given, its length must match that of cmds. If commands do
+	not require input, their corresponding stdin field must be None.
 
-  if not isinstance(timeout, int) and not isinstance(timeout, float):
-    raise TypeError('timeout is not an integer or float')
+	Args:
+		cmds (list): commands to execute
+		timeout (int): timeout in seconds per command (10)
+		workers (int): max concurrency (4)
+		stdins (list): inputs (None)
 
-  if not isinstance(workers, int):
-    raise TypeError('workers is not an integer')
+	Returns:
+		CommandResult generator: results of commands in given order
 
-  if stdins and not isinstance(stdins, list):
-    raise TypeError('stdins is not a list')
-  elif stdins and len(stdins) != len(commands):
-    raise ValueError('length of stdins does not match commands')
+	"""
 
-  count = len(commands)
+	num_cmds = len(cmds)
 
-  if workers > count:
-    workers = count
+	if stdins != None:
+		if len(stdins) != num_cmds:
+			raise RuntimeError("stdins length doesn't match cmds length")
 
-  for i in range(count):
-    if stdins:
-      stdin = stdins[i]
-    else:
-      stdin = None
+	if workers > num_cmds:
+		workers = num_cmds
 
-    commands[i] = [commands[i], timeout, stdin]
+	for i in xrange(num_cmds):
+		try:
+			stdin = stdins[i]
+		except:
+			stdin = None
 
-  pool = Pool(processes=workers)
-  results = pool.imap(command_worker, commands)
+		cmds[i] = (cmds[i], timeout, stdin)
 
-  pool.close()
-  pool.join()
+	pool = multiprocessing.Pool(processes=workers)
+	results = pool.imap(command_wrapper, cmds)
 
-  return imap(parse_command_result, results)
+	pool.close()
+	pool.join()
+
+	return results
+
+def test(single_cmds=['ls -l', 'uptime', 'blargh'],
+         multi_cmds=['ls -l', 'uptime', 'ping -c3 -i1 -W1 google.com']):
+	"""Demonstrates command and multi_command functionality.
+
+	Args:
+		single_cmds (list): commands to run one at a time
+		multi_cmds (list): commands to run concurrently
+
+	"""
+
+	print
+	print '-----------------------'
+	print 'Running single commands'
+	print '-----------------------'
+
+	for cmd in single_cmds:
+		result = command(cmd)
+		print
+		print 'cmd: %s' % result.cmd
+		print 'pid: %s' % result.pid
+		print 'ret: %s' % result.retval
+		print 'run: %s' % result.runtime
+		print 'out:'
+		print result.stdout
+		print 'err:'
+		print result.stderr
+
+	print
+	print '-------------------------'
+	print 'Running multiple commands'
+	print '-------------------------'
+
+	for result in multi_command(multi_cmds):
+		print
+		print 'cmd: %s' % result.cmd
+		print 'pid: %s' % result.pid
+		print 'ret: %s' % result.retval
+		print 'run: %s' % result.runtime
+		print 'out:'
+		print result.stdout
+		print 'err:'
+		print result.stderr

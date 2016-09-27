@@ -1,12 +1,12 @@
 author
 ======
 Todd Mueller
-firstnamelastname@common.google.mail.domain
+firstname@firstnamelastname.com
 https://github.com/microlinux/python-shell
 
 version
 =======
-1.3b
+2.0
 
 history
 =======
@@ -23,11 +23,18 @@ history
                Removed compressed version, mostly laziness.
 20130802 1.3b  Added stdin support.
                Reworked function param checks.
-
-install
-=======
-python setup.py install
-
+20160926 2.0   Big changes. 
+               Re-factored and cleaned up.
+               stdout/stderr now returned separately.
+               stdout/stderr now returned as strings. 
+               namedtuple command field now 'cmd'.
+               namedtuple runtime field now in milliseconds.
+               timeout retval now 254.
+               Python exception retval now 255.
+               Got rid of setup script/files.
+               Added 'test' function for . . . testing.
+               I'm three years older.
+            
 truth
 =====
 This program is free software: you can redistribute it and/or modify it
@@ -54,46 +61,52 @@ return results in a normalized manner.
 command() returns a namedtuple and multi_command() returns a namedtuple
 generator:
 
-result.command  <str>   command
-result.pid      <int>   pid of process (None on exception)
+result.cmd      <str>   command executed
+result.pid      <int>   pid of process
 result.retval   <int>   retval
-result.runtime  <float> runtime down to ms (None on exception)
-result.output   <list>  output split by line, stripped of vertical and
-                        horizontal whitespace
+result.runtime  <int>   runtime in milliseconds
+result.stdout   <str>   stdout stripped of vertical and horizontal 
+                        whitespace
+result.stderr   <str>   stderr stripped of vertical and horizontal 
+                        whitespace
 
-retval = -9 on command timeout
 retval = 127 on command not found
-retval = 257 on exception
+retval = 254 on command timeout
+retval = 255 on Python exception
 
-On retval -9 or 127 a standard description is returned as output. On retval
-257, format_exc() is returned. Otherwise stdout + stderr is returned.
+On retval 127 or 254 a standard description is returned in stderr. On retval
+255, traceback.format_exc() is returned in stderr.
 
-------------------------------------------------------------------
-command(<str> command, <int|float> timeout=10, <mixed> stdin=None)
-------------------------------------------------------------------
+----------------------------------------------------------------
+command(<str> command, <int> timeout=10, <str> stdin=None)
+----------------------------------------------------------------
 Executes a command with a timeout. Returns the result as a namedtuple.
 
-result = command('whoami', 2)
+result = command('whoami')
 
-print result.command
+print
+print result.cmd
 print result.pid
 print result.retval
 print result.runtime
-print result.output
+print result.stdout
+print result.stderr
 
 -----------------------------------------------------------------------
-multi_command(<list> commands, <int|float> timeout=10, <int> workers=4,
+multi_command(<list> commands, <int> timeout=10, <int> workers=4,
               <list> stdins=None
 -----------------------------------------------------------------------
 Executes commands concurrently with individual timeouts in a pool of workers.
 Length of stdins must match commands, empty indexes must contain None. Returns
 ordered results as a namedtuple generator.
 
-results = multi_command(['whoami', 'uptime'], 2)
+results = multi_command(['whoami', 'uptime'])
 
 for result in results:
-  print result.command
-  print result.pid
-  print result.retval
-  print result.runtime
-  print result.output
+    print
+    print result.cmd
+    print result.pid
+    print result.retval
+    print result.runtime
+    print result.stdout
+    print result.stderr
