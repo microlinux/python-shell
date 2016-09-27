@@ -1,12 +1,12 @@
 author
 ======
 Todd Mueller
-firstnamelastname@common.google.mail.domain
+firstname@firstnamelastname.com
 https://github.com/microlinux/python-shell
 
 version
 =======
-1.3b
+2.0
 
 history
 =======
@@ -64,10 +64,10 @@ generator:
 result.cmd      <str>   command executed
 result.pid      <int>   pid of process
 result.retval   <int>   retval
-result.runtime  <float> runtime in milliseconds
-result.stdout   <list>  stdout stripped of vertical and horizontal 
+result.runtime  <int>   runtime in milliseconds
+result.stdout   <str>   stdout stripped of vertical and horizontal 
                         whitespace
-result.stderr   <list>  stderr stripped of vertical and horizontal 
+result.stderr   <str>   stderr stripped of vertical and horizontal 
                         whitespace
 
 retval = 127 on command not found
@@ -78,12 +78,13 @@ On retval 127 or 254 a standard description is returned in stderr. On retval
 255, traceback.format_exc() is returned in stderr.
 
 ----------------------------------------------------------------
-command(<str> command, <int|float> timeout=10, <str> stdin=None)
+command(<str> command, <int> timeout=10, <str> stdin=None)
 ----------------------------------------------------------------
 Executes a command with a timeout. Returns the result as a namedtuple.
 
-result = command('whoami', 2)
+result = command('whoami')
 
+print
 print result.cmd
 print result.pid
 print result.retval
@@ -92,16 +93,17 @@ print result.stdout
 print result.stderr
 
 -----------------------------------------------------------------------
-multi_command(<list> commands, <int|float> timeout=10, <int> workers=4,
+multi_command(<list> commands, <int> timeout=10, <int> workers=4,
               <list> stdins=None
 -----------------------------------------------------------------------
 Executes commands concurrently with individual timeouts in a pool of workers.
 Length of stdins must match commands, empty indexes must contain None. Returns
 ordered results as a namedtuple generator.
 
-results = multi_command(['whoami', 'uptime'], 2)
+results = multi_command(['whoami', 'uptime'])
 
 for result in results:
+    print
     print result.cmd
     print result.pid
     print result.retval
