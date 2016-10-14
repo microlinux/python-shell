@@ -110,7 +110,7 @@ def command(cmd, timeout=10, stdin=None):
     return CommandResult(cmd, pid, retval, runtime, stdout, stderr)
 
 def command_wrapper(args):
-    """Wrapper used my multi_command to pass command arguments as a list."""
+    """Wrapper used my multi_command() to pass command() arguments as a list."""
 
     return command(*args)
 
